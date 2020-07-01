@@ -57,8 +57,8 @@ namespace Examproject {
             speed = _rb.velocity.magnitude; // get speed.
 
             if (doFixedUpdate.walk) {
-                var _ADJUST1 = 0f;
-                _rb.AddFor​​ce(transform.forward * speed * _ADJUST1, ForceMode.Acceleration); // move forward.
+                var _ADJUST1 = 20.0f;
+                _rb.AddFor​​ce(transform.forward * _ADJUST1, ForceMode.Acceleration); // move forward.
             }
 
             doFixedUpdate.ResetMotion(); // initialize physical behavior flag.
