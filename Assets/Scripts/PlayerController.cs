@@ -24,6 +24,12 @@ namespace Examproject {
     public class PlayerController : GamepadMaper {
 
         ///////////////////////////////////////////////////////////////////////////////////////////
+        // References
+
+        [SerializeField]
+        private float rotationalSpeed = 5.0f;
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
         private DoFixedUpdate doFixedUpdate;
@@ -51,6 +57,9 @@ namespace Examproject {
                 doFixedUpdate.backward = true;
             }
 
+            var _ADJUST1 = 12.0f;
+            var _axis = rightButton.isPressed ? 1 : leftButton.isPressed ? -1 : 0;
+            transform.Rotate(0, _axis * (rotationalSpeed * Time.deltaTime) * _ADJUST1, 0); // rotate
         }
 
         // FixedUpdate is called just before each physics update.
