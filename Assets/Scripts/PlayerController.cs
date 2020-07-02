@@ -47,6 +47,8 @@ namespace Examproject {
             base.Update();
             if (upButton.isPressed) {
                 doFixedUpdate.walk = true;
+            } else if (downButton.isPressed) {
+                doFixedUpdate.backward = true;
             }
 
         }
@@ -56,9 +58,11 @@ namespace Examproject {
             var _rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
             speed = _rb.velocity.magnitude; // get speed.
 
+            var _ADJUST1 = 12.0f;
             if (doFixedUpdate.walk) {
-                var _ADJUST1 = 20.0f;
                 _rb.AddFor​​ce(transform.forward * _ADJUST1, ForceMode.Acceleration); // move forward.
+            } else if (doFixedUpdate.backward) {
+                _rb.AddFor​​ce(-transform.forward * _ADJUST1, ForceMode.Acceleration); // move backward.
             }
 
             doFixedUpdate.ResetMotion(); // initialize physical behavior flag.
@@ -76,9 +80,11 @@ namespace Examproject {
 
             private bool _idol;
             private bool _walk;
+            private bool _backward;
 
             public bool idol { get => _idol; set => _idol = value; }
             public bool walk { get => _walk; set => _walk = value; }
+            public bool backward { get => _backward; set => _backward = value; }
 
             ///////////////////////////////////////////////////////////////////////////////////////
             // Constructor
@@ -101,6 +107,7 @@ namespace Examproject {
             public void ResetMotion() {
                 _idol = false;
                 _walk = false;
+                _backward = false;
             }
         }
 
