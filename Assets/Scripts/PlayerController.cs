@@ -27,6 +27,9 @@ namespace Examproject {
         // References
 
         [SerializeField]
+        private float jumpPower = 5.0f;
+
+        [SerializeField]
         private float rotationalSpeed = 5.0f;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -51,10 +54,15 @@ namespace Examproject {
         // Update is called once per frame
         new void Update() {
             base.Update();
+
             if (upButton.isPressed) {
                 doFixedUpdate.walk = true;
             } else if (downButton.isPressed) {
                 doFixedUpdate.backward = true;
+            }
+
+            if (bButton.wasPressedThisFrame) {
+                doFixedUpdate.jump = true;
             }
 
             var _ADJUST1 = 12.0f;
@@ -66,6 +74,11 @@ namespace Examproject {
         void FixedUpdate() {
             var _rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
             speed = _rb.velocity.magnitude; // get speed.
+
+            if (doFixedUpdate.jump) {
+                _rb.useGravity = true;
+                _rb.AddRelativeFor​​ce(Vector3.up * jumpPower * 40f, ForceMode.Acceleration); // jump.
+            }
 
             var _ADJUST1 = 12.0f;
             if (doFixedUpdate.walk) {
@@ -89,10 +102,12 @@ namespace Examproject {
 
             private bool _idol;
             private bool _walk;
+            private bool _jump;
             private bool _backward;
 
             public bool idol { get => _idol; set => _idol = value; }
             public bool walk { get => _walk; set => _walk = value; }
+            public bool jump { get => _jump; set => _jump = value; }
             public bool backward { get => _backward; set => _backward = value; }
 
             ///////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +131,7 @@ namespace Examproject {
             public void ResetMotion() {
                 _idol = false;
                 _walk = false;
+                _jump = false;
                 _backward = false;
             }
         }
