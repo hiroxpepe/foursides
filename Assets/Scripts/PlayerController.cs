@@ -34,6 +34,12 @@ namespace Examproject {
         [SerializeField]
         private float rotationalSpeed = 5.0f;
 
+        [SerializeField]
+        private float forwardSpeedLimit = 1.1f;
+
+        [SerializeField]
+        private float backwardSpeedLimit = 0.75f;
+
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
@@ -54,13 +60,17 @@ namespace Examproject {
             base.Start();
 
             var _rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
-            speed = _rb.velocity.magnitude; // get speed.
+
+            this.FixedUpdateAsObservable().Subscribe(_ => {
+                speed = _rb.velocity.magnitude; // get speed.
+                Debug.Log("speed: " + speed); // FIXME:
+            });
 
             // move forward.
             this.UpdateAsObservable().Where(_ => upButton.isPressed).Subscribe(_ => {
                 doFixedUpdate.walk = true;
             });
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk).Subscribe(_ => {
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk && speed < forwardSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
                 doFixedUpdate.walk = false;
             });
@@ -70,7 +80,7 @@ namespace Examproject {
                 doFixedUpdate.backward = true;
             });
 
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.backward).Subscribe(_ => {
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.backward && speed < backwardSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
                 doFixedUpdate.backward = false;
             });
