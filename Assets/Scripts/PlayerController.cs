@@ -15,6 +15,8 @@
  */
 
 using UnityEngine;
+using UniRx;
+using UniRx.Triggers;
 
 namespace Examproject {
     /// <summary>
@@ -49,45 +51,46 @@ namespace Examproject {
 
         // Start is called before the first frame update
         new void Start() {
-        }
+            base.Start();
 
-        // Update is called once per frame
-        new void Update() {
-            base.Update();
-
-            if (upButton.isPressed) {
-                doFixedUpdate.walk = true;
-            } else if (downButton.isPressed) {
-                doFixedUpdate.backward = true;
-            }
-
-            if (bButton.wasPressedThisFrame) {
-                doFixedUpdate.jump = true;
-            }
-
-            var _ADJUST1 = 12.0f;
-            var _axis = rightButton.isPressed ? 1 : leftButton.isPressed ? -1 : 0;
-            transform.Rotate(0, _axis * (rotationalSpeed * Time.deltaTime) * _ADJUST1, 0); // rotate
-        }
-
-        // FixedUpdate is called just before each physics update.
-        void FixedUpdate() {
             var _rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
             speed = _rb.velocity.magnitude; // get speed.
 
-            if (doFixedUpdate.jump) {
+            // move forward.
+            this.UpdateAsObservable().Where(_ => upButton.isPressed).Subscribe(_ => {
+                doFixedUpdate.walk = true;
+            });
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk).Subscribe(_ => {
+                _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+                doFixedUpdate.walk = false;
+            });
+
+            // move backward.
+            this.UpdateAsObservable().Where(_ => downButton.isPressed).Subscribe(_ => {
+                doFixedUpdate.backward = true;
+            });
+
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.backward).Subscribe(_ => {
+                _rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
+                doFixedUpdate.backward = false;
+            });
+
+            // jump.
+            this.UpdateAsObservable().Where(_ => bButton.wasPressedThisFrame).Subscribe(_ => {
+                doFixedUpdate.jump = true;
+            });
+
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.jump).Subscribe(_ => {
                 _rb.useGravity = true;
-                _rb.AddRelativeFor​​ce(Vector3.up * jumpPower * 40f, ForceMode.Acceleration); // jump.
-            }
+                _rb.AddRelativeFor​​ce(Vector3.up * jumpPower * 40f, ForceMode.Acceleration);
+                doFixedUpdate.jump = false;
+            });
 
-            var _ADJUST1 = 12.0f;
-            if (doFixedUpdate.walk) {
-                _rb.AddFor​​ce(transform.forward * _ADJUST1, ForceMode.Acceleration); // move forward.
-            } else if (doFixedUpdate.backward) {
-                _rb.AddFor​​ce(-transform.forward * _ADJUST1, ForceMode.Acceleration); // move backward.
-            }
-
-            doFixedUpdate.ResetMotion(); // initialize physical behavior flag.
+            // rotate.
+            this.UpdateAsObservable().Subscribe(_ => {
+                var _axis = rightButton.isPressed ? 1 : leftButton.isPressed ? -1 : 0;
+                transform.Rotate(0, _axis * (rotationalSpeed * Time.deltaTime) * 12.0f, 0);
+            });
         }
 
         #region DoFixedUpdate
@@ -118,21 +121,7 @@ namespace Examproject {
             /// </summary>
             public static DoFixedUpdate GetInstance() {
                 var _instance = new DoFixedUpdate();
-                _instance.ResetMotion();
                 return _instance;
-            }
-
-            ///////////////////////////////////////////////////////////////////////////////////////
-            // public Methods
-
-            /// <summary>
-            /// initialization of all fields.
-            /// </summary>
-            public void ResetMotion() {
-                _idol = false;
-                _walk = false;
-                _jump = false;
-                _backward = false;
             }
         }
 

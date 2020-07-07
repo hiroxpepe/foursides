@@ -17,6 +17,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UniRx;
+using UniRx.Triggers;
 
 namespace Examproject {
     /// <summary>
@@ -49,11 +51,9 @@ namespace Examproject {
 
         // Start is called before the first frame update
         protected void Start() {
-        }
-
-        // Update is called once per frame
-        protected void Update() {
-            mapGamepad();
+            this.UpdateAsObservable().Subscribe(_ => {
+                mapGamepad();
+            });
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
