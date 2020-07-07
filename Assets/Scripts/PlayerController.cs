@@ -38,6 +38,9 @@ namespace Examproject {
         private float forwardSpeedLimit = 1.1f;
 
         [SerializeField]
+        private float runSpeedLimit = 3.25f;
+
+        [SerializeField]
         private float backwardSpeedLimit = 0.75f;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -66,16 +69,27 @@ namespace Examproject {
                 Debug.Log("speed: " + speed); // FIXME:
             });
 
-            // move forward.
+            // walk.
             this.UpdateAsObservable().Where(_ => upButton.isPressed).Subscribe(_ => {
                 doFixedUpdate.walk = true;
             });
+
             this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk && speed < forwardSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
                 doFixedUpdate.walk = false;
             });
 
-            // move backward.
+            // run.
+            this.UpdateAsObservable().Where(_ => upButton.isPressed && yButton.isPressed).Subscribe(_ => {
+                doFixedUpdate.run = true;
+            });
+
+            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.run && speed < runSpeedLimit).Subscribe(_ => {
+                _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+                doFixedUpdate.run = false;
+            });
+
+            // backward.
             this.UpdateAsObservable().Where(_ => downButton.isPressed).Subscribe(_ => {
                 doFixedUpdate.backward = true;
             });
@@ -114,11 +128,13 @@ namespace Examproject {
             // Fields
 
             private bool _idol;
+            private bool _run;
             private bool _walk;
             private bool _jump;
             private bool _backward;
 
             public bool idol { get => _idol; set => _idol = value; }
+            public bool run { get => _run; set => _run = value; }
             public bool walk { get => _walk; set => _walk = value; }
             public bool jump { get => _jump; set => _jump = value; }
             public bool backward { get => _backward; set => _backward = value; }
