@@ -71,43 +71,43 @@ namespace Examproject {
 
             // walk.
             this.UpdateAsObservable().Where(_ => upButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.walk = true;
+                doFixedUpdate.ApplyWalk();
             });
 
             this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk && speed < forwardSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.walk = false;
+                doFixedUpdate.CancelWalk();
             });
 
             // run.
             this.UpdateAsObservable().Where(_ => upButton.isPressed && yButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.run = true;
+                doFixedUpdate.ApplyRun();
             });
 
             this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.run && speed < runSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.run = false;
+                doFixedUpdate.CancelRun();
             });
 
             // backward.
             this.UpdateAsObservable().Where(_ => downButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.backward = true;
+                doFixedUpdate.ApplyBackward();
             });
 
             this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.backward && speed < backwardSpeedLimit).Subscribe(_ => {
                 _rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.backward = false;
+                doFixedUpdate.CancelBackward();
             });
 
             // jump.
             this.UpdateAsObservable().Where(_ => bButton.wasPressedThisFrame).Subscribe(_ => {
-                doFixedUpdate.jump = true;
+                doFixedUpdate.ApplyJump();
             });
 
             this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.jump).Subscribe(_ => {
                 _rb.useGravity = true;
                 _rb.AddRelativeFor​​ce(Vector3.up * jumpPower * 40f, ForceMode.Acceleration);
-                doFixedUpdate.jump = false;
+                doFixedUpdate.CancelJump();
             });
 
             // rotate.
@@ -133,11 +133,11 @@ namespace Examproject {
             private bool _jump;
             private bool _backward;
 
-            public bool idol { get => _idol; set => _idol = value; }
-            public bool run { get => _run; set => _run = value; }
-            public bool walk { get => _walk; set => _walk = value; }
-            public bool jump { get => _jump; set => _jump = value; }
-            public bool backward { get => _backward; set => _backward = value; }
+            public bool idol { get => _idol; }
+            public bool run { get => _run; }
+            public bool walk { get => _walk; }
+            public bool jump { get => _jump; }
+            public bool backward { get => _backward; }
 
             ///////////////////////////////////////////////////////////////////////////////////////
             // Constructor
@@ -148,6 +148,44 @@ namespace Examproject {
             public static DoFixedUpdate GetInstance() {
                 var _instance = new DoFixedUpdate();
                 return _instance;
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+            // public Methods
+
+            public void ApplyRun() {
+                _idol = _walk = _backward = false;
+                _run = true;
+            }
+
+            public void CancelRun() {
+                _run = false;
+            }
+
+            public void ApplyWalk() {
+                _idol = _run = _backward = false;
+                _walk = true;
+            }
+
+            public void CancelWalk() {
+                _walk = false;
+            }
+
+            public void ApplyBackward() {
+                _idol = _run = _walk = false;
+                _backward = true;
+            }
+
+            public void CancelBackward() {
+                _backward = false;
+            }
+
+            public void ApplyJump() {
+                _jump = true;
+            }
+
+            public void CancelJump() {
+                _jump = false;
             }
         }
 

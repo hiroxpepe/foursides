@@ -57,7 +57,7 @@ namespace Examproject {
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
-        // private methods
+        // private Methods
 
         private void mapGamepad() {
             // Identifies the OS.
