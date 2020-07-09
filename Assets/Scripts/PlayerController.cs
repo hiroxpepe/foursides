@@ -29,26 +29,26 @@ namespace Examproject {
         // References
 
         [SerializeField]
-        private float jumpPower = 5.0f;
+        float jumpPower = 5.0f;
 
         [SerializeField]
-        private float rotationalSpeed = 5.0f;
+        float rotationalSpeed = 5.0f;
 
         [SerializeField]
-        private float forwardSpeedLimit = 1.1f;
+        float forwardSpeedLimit = 1.1f;
 
         [SerializeField]
-        private float runSpeedLimit = 3.25f;
+        float runSpeedLimit = 3.25f;
 
         [SerializeField]
-        private float backwardSpeedLimit = 0.75f;
+        float backwardSpeedLimit = 0.75f;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
-        private DoFixedUpdate doFixedUpdate;
+        DoFixedUpdate doFixedUpdate;
 
-        private float speed;
+        float speed;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
@@ -120,18 +120,21 @@ namespace Examproject {
         #region DoFixedUpdate
 
         /// <summary>
-        /// structure for the FixedUpdate() method.
+        /// class for the FixedUpdate() method.
         /// </summary>
-        protected struct DoFixedUpdate {
+        class DoFixedUpdate {
 
             ///////////////////////////////////////////////////////////////////////////////////////
             // Fields
 
-            private bool _idol;
-            private bool _run;
-            private bool _walk;
-            private bool _jump;
-            private bool _backward;
+            bool _idol;
+            bool _run;
+            bool _walk;
+            bool _jump;
+            bool _backward;
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Properties
 
             public bool idol { get => _idol; }
             public bool run { get => _run; }
@@ -146,8 +149,7 @@ namespace Examproject {
             /// returns an initialized instance.
             /// </summary>
             public static DoFixedUpdate GetInstance() {
-                var _instance = new DoFixedUpdate();
-                return _instance;
+                return new DoFixedUpdate();
             }
 
             ///////////////////////////////////////////////////////////////////////////////////////////
