@@ -29,91 +29,91 @@ namespace Examproject {
         // References
 
         [SerializeField]
-        float jumpPower = 5.0f;
+        float _jumpPower = 5.0f;
 
         [SerializeField]
-        float rotationalSpeed = 5.0f;
+        float _rotationalSpeed = 5.0f;
 
         [SerializeField]
-        float forwardSpeedLimit = 1.1f;
+        float _forwardSpeedLimit = 1.1f;
 
         [SerializeField]
-        float runSpeedLimit = 3.25f;
+        float _runSpeedLimit = 3.25f;
 
         [SerializeField]
-        float backwardSpeedLimit = 0.75f;
+        float _backwardSpeedLimit = 0.75f;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
-        DoFixedUpdate doFixedUpdate;
+        DoFixedUpdate _doFixedUpdate;
 
-        float speed;
+        float _speed;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
 
         // Awake is called when the script instance is being loaded.
         void Awake() {
-            doFixedUpdate = DoFixedUpdate.GetInstance();
+            _doFixedUpdate = DoFixedUpdate.GetInstance();
         }
 
         // Start is called before the first frame update
         new void Start() {
             base.Start();
 
-            var _rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
+            var rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
 
             this.FixedUpdateAsObservable().Subscribe(_ => {
-                speed = _rb.velocity.magnitude; // get speed.
-                Debug.Log("speed: " + speed); // FIXME:
+                _speed = rb.velocity.magnitude; // get speed.
+                Debug.Log("speed: " + _speed); // FIXME:
             });
 
             // walk.
-            this.UpdateAsObservable().Where(_ => upButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.ApplyWalk();
+            this.UpdateAsObservable().Where(_ => _upButton.isPressed).Subscribe(_ => {
+                _doFixedUpdate.ApplyWalk();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.walk && speed < forwardSpeedLimit).Subscribe(_ => {
-                _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.CancelWalk();
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.walk && _speed < _forwardSpeedLimit).Subscribe(_ => {
+                rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+                _doFixedUpdate.CancelWalk();
             });
 
             // run.
-            this.UpdateAsObservable().Where(_ => upButton.isPressed && yButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.ApplyRun();
+            this.UpdateAsObservable().Where(_ => _upButton.isPressed && _yButton.isPressed).Subscribe(_ => {
+                _doFixedUpdate.ApplyRun();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.run && speed < runSpeedLimit).Subscribe(_ => {
-                _rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.CancelRun();
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.run && _speed < _runSpeedLimit).Subscribe(_ => {
+                rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+                _doFixedUpdate.CancelRun();
             });
 
             // backward.
-            this.UpdateAsObservable().Where(_ => downButton.isPressed).Subscribe(_ => {
-                doFixedUpdate.ApplyBackward();
+            this.UpdateAsObservable().Where(_ => _downButton.isPressed).Subscribe(_ => {
+                _doFixedUpdate.ApplyBackward();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.backward && speed < backwardSpeedLimit).Subscribe(_ => {
-                _rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
-                doFixedUpdate.CancelBackward();
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.backward && _speed < _backwardSpeedLimit).Subscribe(_ => {
+                rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
+                _doFixedUpdate.CancelBackward();
             });
 
             // jump.
-            this.UpdateAsObservable().Where(_ => bButton.wasPressedThisFrame).Subscribe(_ => {
-                doFixedUpdate.ApplyJump();
+            this.UpdateAsObservable().Where(_ => _bButton.wasPressedThisFrame).Subscribe(_ => {
+                _doFixedUpdate.ApplyJump();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => doFixedUpdate.jump).Subscribe(_ => {
-                _rb.useGravity = true;
-                _rb.AddRelativeFor​​ce(Vector3.up * jumpPower * 40f, ForceMode.Acceleration);
-                doFixedUpdate.CancelJump();
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.jump).Subscribe(_ => {
+                rb.useGravity = true;
+                rb.AddRelativeFor​​ce(Vector3.up * _jumpPower * 40f, ForceMode.Acceleration);
+                _doFixedUpdate.CancelJump();
             });
 
             // rotate.
             this.UpdateAsObservable().Subscribe(_ => {
-                var _axis = rightButton.isPressed ? 1 : leftButton.isPressed ? -1 : 0;
-                transform.Rotate(0, _axis * (rotationalSpeed * Time.deltaTime) * 12.0f, 0);
+                var axis = _rightButton.isPressed ? 1 : _leftButton.isPressed ? -1 : 0;
+                transform.Rotate(0, axis * (_rotationalSpeed * Time.deltaTime) * 12.0f, 0);
             });
         }
 

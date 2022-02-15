@@ -30,21 +30,21 @@ namespace Examproject {
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
-        protected ButtonControl aButton;
+        protected ButtonControl _aButton;
 
-        protected ButtonControl bButton;
+        protected ButtonControl _bButton;
 
-        protected ButtonControl xButton;
+        protected ButtonControl _xButton;
 
-        protected ButtonControl yButton;
+        protected ButtonControl _yButton;
 
-        protected ButtonControl upButton;
+        protected ButtonControl _upButton;
 
-        protected ButtonControl downButton;
+        protected ButtonControl _downButton;
 
-        protected ButtonControl leftButton;
+        protected ButtonControl _leftButton;
 
-        protected ButtonControl rightButton;
+        protected ButtonControl _rightButton;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
@@ -61,31 +61,30 @@ namespace Examproject {
 
         private void mapGamepad() {
             // Identifies the OS.
-            upButton = Gamepad.current.dpad.up;
-            downButton = Gamepad.current.dpad.down;
-            leftButton = Gamepad.current.dpad.left;
-            rightButton = Gamepad.current.dpad.right;
+            _upButton = Gamepad.current.dpad.up;
+            _downButton = Gamepad.current.dpad.down;
+            _leftButton = Gamepad.current.dpad.left;
+            _rightButton = Gamepad.current.dpad.right;
             if (Application.platform == RuntimePlatform.Android) {
                 // Android OS
-                aButton = Gamepad.current.aButton;
-                bButton = Gamepad.current.bButton;
-                xButton = Gamepad.current.xButton;
-                yButton = Gamepad.current.yButton;
+                _aButton = Gamepad.current.aButton;
+                _bButton = Gamepad.current.bButton;
+                _xButton = Gamepad.current.xButton;
+                _yButton = Gamepad.current.yButton;
             } else if (Application.platform == RuntimePlatform.WindowsPlayer) {
                 // Windows OS
-                aButton = Gamepad.current.bButton;
-                bButton = Gamepad.current.aButton;
-                xButton = Gamepad.current.yButton;
-                yButton = Gamepad.current.xButton;
+                _aButton = Gamepad.current.bButton;
+                _bButton = Gamepad.current.aButton;
+                _xButton = Gamepad.current.yButton;
+                _yButton = Gamepad.current.xButton;
             } else {
                 // FIXME: can't get it during development with Unity?
-                aButton = Gamepad.current.bButton;
-                bButton = Gamepad.current.aButton;
-                xButton = Gamepad.current.yButton;
-                yButton = Gamepad.current.xButton;
+                _aButton = Gamepad.current.bButton;
+                _bButton = Gamepad.current.aButton;
+                _xButton = Gamepad.current.yButton;
+                _yButton = Gamepad.current.xButton;
             }
         }
     }
 
 }
-
