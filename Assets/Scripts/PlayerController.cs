@@ -117,6 +117,46 @@ namespace Examproject {
             });
         }
 
+        #region DoUpdate
+
+        /// <summary>
+        /// class for the Update() method.
+        /// </summary>
+        class DoUpdate {
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Fields
+
+            bool _grounded;
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Properties
+
+            public bool grounded {
+                get => _grounded;
+                set => _grounded = value;
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Constructor
+
+            /// <summary>
+            /// returns an initialized instance.
+            /// </summary>
+            public static DoUpdate GetInstance() {
+                return new DoUpdate();
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+            // public Methods [verb]
+
+            public void ResetState() {
+                _grounded = false;
+            }
+        }
+
+        #endregion
+
         #region DoFixedUpdate
 
         /// <summary>
