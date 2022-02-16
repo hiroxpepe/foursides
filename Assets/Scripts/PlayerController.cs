@@ -45,6 +45,8 @@ namespace Studio.MeowToon {
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
+        DoUpdate _doUpdate;
+
         DoFixedUpdate _doFixedUpdate;
 
         float _speed;
@@ -54,6 +56,7 @@ namespace Studio.MeowToon {
 
         // Awake is called when the script instance is being loaded.
         void Awake() {
+            _doUpdate = DoUpdate.GetInstance();
             _doFixedUpdate = DoFixedUpdate.GetInstance();
         }
 
@@ -65,7 +68,7 @@ namespace Studio.MeowToon {
 
             this.FixedUpdateAsObservable().Subscribe(_ => {
                 _speed = rb.velocity.magnitude; // get speed.
-                Debug.Log("speed: " + _speed); // FIXME:
+                //Debug.Log("speed: " + _speed); // FIXME:
             });
 
             // walk.
@@ -99,7 +102,8 @@ namespace Studio.MeowToon {
             });
 
             // jump.
-            this.UpdateAsObservable().Where(_ => _bButton.wasPressedThisFrame).Subscribe(_ => {
+            this.UpdateAsObservable().Where(_ => _bButton.wasPressedThisFrame && _doUpdate.grounded).Subscribe(_ => {
+                _doUpdate.grounded = false;
                 _doFixedUpdate.ApplyJump();
             });
 
@@ -113,6 +117,12 @@ namespace Studio.MeowToon {
             this.UpdateAsObservable().Subscribe(_ => {
                 var axis = _rightButton.isPressed ? 1 : _leftButton.isPressed ? -1 : 0;
                 transform.Rotate(0, axis * (_rotationalSpeed * Time.deltaTime) * 12.0f, 0);
+            });
+
+            // when touching grounds or blocks.
+            this.OnCollisionEnterAsObservable().Where(x => x.LikeBlock() || x.LikeGround()).Subscribe(_ => {
+                _doUpdate.grounded = true;
+                Debug.Log("grounded: " + _doUpdate.grounded); // FIXME:
             });
         }
 
@@ -143,7 +153,9 @@ namespace Studio.MeowToon {
             /// returns an initialized instance.
             /// </summary>
             public static DoUpdate GetInstance() {
-                return new DoUpdate();
+                var instance = new DoUpdate();
+                instance.ResetState();
+                return instance;
             }
 
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -233,5 +245,4 @@ namespace Studio.MeowToon {
         #endregion
 
     }
-
 }

@@ -25,6 +25,34 @@ namespace Studio.MeowToon {
         #region type of object.
 
         /// <summary>
+        /// whether the GameObject's name contains "Block".
+        /// </summary>
+        public static bool LikeBlock(this GameObject self) {
+            return self.name.Contains("Block");
+        }
+
+        /// <summary>
+        /// whether the Transform's name contains "Block".
+        /// </summary>
+        public static bool LikeBlock(this Transform self) {
+            return self.name.Contains("Block");
+        }
+
+        /// <summary>
+        /// whether the Collider's name contains "Block".
+        /// </summary>
+        public static bool LikeBlock(this Collider self) {
+            return self.name.Contains("Block");
+        }
+
+        /// <summary>
+        /// whether the Collision's name contains "Block".
+        /// </summary>
+        public static bool LikeBlock(this Collision self) {
+            return self.gameObject.name.Contains("Block");
+        }
+
+        /// <summary>
         /// whether the GameObject's name contains "Ground".
         /// </summary>
         public static bool LikeGround(this GameObject self) {
