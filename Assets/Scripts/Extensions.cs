@@ -73,6 +73,115 @@ namespace Studio.MeowToon {
             return self.gameObject.name.Contains("Ground");
         }
 
+        /// <summary>
+        /// whether the GameObject's name contains "Wall".
+        /// </summary>
+        public static bool LikeWall(this GameObject self) {
+            return self.name.Contains("Wall");
+        }
+
+        /// <summary>
+        /// whether the Transform's name contains "Wall".
+        /// </summary>
+        public static bool LikeWall(this Transform self) {
+            return self.name.Contains("Wall");
+        }
+
+        /// <summary>
+        /// whether the Collider's name contains "Wall".
+        /// </summary>
+        public static bool LikeWall(this Collider self) {
+            return self.name.Contains("Wall");
+        }
+
+        /// <summary>
+        /// whether the Collision's name contains "Wall".
+        /// </summary>
+        public static bool LikeWall(this Collision self) {
+            return self.gameObject.name.Contains("Wall");
+        }
+
+        #endregion
+
+        #region get the object.
+
+        /// <summary>
+        /// get the Collider object.
+        /// </summary>
+        public static Collider GetCollider(this GameObject self) {
+            return self.GetComponent<Collider>();
+        }
+
+        /// <summary>
+        /// get the BoxCollider object.
+        /// </summary>
+        public static BoxCollider GetBoxCollider(this GameObject self) {
+            return self.GetComponent<BoxCollider>();
+        }
+
+        /// <summary>
+        /// get the CapsuleCollider object.
+        /// </summary>
+        public static CapsuleCollider GetCapsuleCollider(this GameObject self) {
+            return self.GetComponent<CapsuleCollider>();
+        }
+
+        /// <summary>
+        /// get the Rigidbody object.
+        /// </summary>
+        public static Rigidbody GetRigidbody(this GameObject self) {
+            return self.GetComponent<Rigidbody>();
+        }
+
+        /// <summary>
+        /// get the Rigidbody object.
+        /// </summary>
+        public static Rigidbody GetRigidbody(this Transform self) {
+            return self.GetComponent<Rigidbody>();
+        }
+
+        /// <summary>
+        /// add a Rigidbody object.
+        /// </summary>
+        public static Rigidbody AddRigidbody(this GameObject self) {
+            return self.AddComponent<Rigidbody>();
+        }
+
+        /// <summary>
+        /// add a Rigidbody object.
+        /// </summary>
+        public static Rigidbody AddRigidbody(this Transform self) {
+            return self.gameObject.AddComponent<Rigidbody>();
+        }
+
+        /// <summary>
+        /// get the Renderer object.
+        /// </summary>
+        public static Renderer GetRenderer(this GameObject self) {
+            return self.GetComponent<Renderer>();
+        }
+
+        /// <summary>
+        /// get the MeshRenderer object.
+        /// </summary>
+        public static MeshRenderer GetMeshRenderer(this GameObject self) {
+            return self.GetComponent<MeshRenderer>();
+        }
+
+        /// <summary>
+        /// get the RectTransform object.
+        /// </summary>
+        public static RectTransform GetRectTransform(this GameObject self) {
+            return self.GetComponent<RectTransform>();
+        }
+
+        /// <summary>
+        /// get CameraSystem objects.
+        /// </summary>
+        public static CameraSystem GetCameraSystem(this GameObject self) {
+            return GameObject.Find("CameraSystem").GetComponent<CameraSystem>();
+        }
+
         #endregion
     }
 }
