@@ -191,7 +191,7 @@ namespace Studio.MeowToon {
         /// <summary>
         /// set Material color to opaque.
         /// </summary>
-        public static Material ToOpaque(this Material self, int time = 0) {
+        public static Material ToOpaque(this Material self, float time = 0) {
             var color = self.color;
             color.a = 0; // to opaque.
             self.color = color;
@@ -201,7 +201,7 @@ namespace Studio.MeowToon {
         /// <summary>
         /// set Material color to transparent.
         /// </summary>
-        public static Material ToTransparent(this Material self, int time = 0) {
+        public static Material ToTransparent(this Material self, float time = 0) {
             var color = self.color;
             color.a = 1; // to transparent.
             self.color = color;

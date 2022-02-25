@@ -13,6 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
@@ -51,7 +52,7 @@ namespace Studio.MeowToon {
 
         DoFixedUpdate _doFixedUpdate;
 
-        float _speed;
+        Acceleration _acceleration;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
@@ -60,50 +61,61 @@ namespace Studio.MeowToon {
         void Awake() {
             _doUpdate = DoUpdate.GetInstance();
             _doFixedUpdate = DoFixedUpdate.GetInstance();
+            _acceleration = Acceleration.GetInstance(_forwardSpeedLimit, _runSpeedLimit, _backwardSpeedLimit);
         }
 
         // Start is called before the first frame update
         new void Start() {
             base.Start();
 
+            const float POWER = 12.0f;
+
             var rb = transform.GetComponent<Rigidbody>(); // Rigidbody should be only used in FixedUpdate.
 
             this.FixedUpdateAsObservable().Subscribe(_ => {
-                _speed = rb.velocity.magnitude; // get speed.
-                //Debug.Log("speed: " + _speed); // FIXME:
+                _acceleration.previousSpeed = _acceleration.currentSpeed;// hold previous speed.
+                _acceleration.currentSpeed = rb.velocity.magnitude; // get speed.
             });
 
-            // walk.
+            /// <summary>
+            /// walk.
+            /// </summary>
             this.UpdateAsObservable().Where(_ => _upButton.isPressed).Subscribe(_ => {
                 _doFixedUpdate.ApplyWalk();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.walk && _speed < _forwardSpeedLimit).Subscribe(_ => {
-                rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.walk && _acceleration.walk).Subscribe(_ => {
+                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration); // FIXME: 12.0f => FORCE
                 _doFixedUpdate.CancelWalk();
             });
 
-            // run.
+            /// <summary>
+            /// run.
+            /// </summary>
             this.UpdateAsObservable().Where(_ => _upButton.isPressed && _yButton.isPressed).Subscribe(_ => {
                 _doFixedUpdate.ApplyRun();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.run && _speed < _runSpeedLimit).Subscribe(_ => {
-                rb.AddFor​​ce(transform.forward * 12.0f, ForceMode.Acceleration);
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.run && _acceleration.run).Subscribe(_ => {
+                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration);
                 _doFixedUpdate.CancelRun();
             });
 
-            // backward.
+            /// <summary>
+            /// backward.
+            /// </summary>
             this.UpdateAsObservable().Where(_ => _downButton.isPressed).Subscribe(_ => {
                 _doFixedUpdate.ApplyBackward();
             });
 
-            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.backward && _speed < _backwardSpeedLimit).Subscribe(_ => {
-                rb.AddFor​​ce(-transform.forward * 12.0f, ForceMode.Acceleration);
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.backward && _acceleration.backward).Subscribe(_ => {
+                rb.AddFor​​ce(-transform.forward * POWER, ForceMode.Acceleration);
                 _doFixedUpdate.CancelBackward();
             });
 
-            // jump.
+            /// <summary>
+            /// jump.
+            /// </summary>
             this.UpdateAsObservable().Where(_ => _bButton.wasPressedThisFrame && _doUpdate.grounded).Subscribe(_ => {
                 _doUpdate.grounded = false;
                 _doFixedUpdate.ApplyJump();
@@ -111,22 +123,173 @@ namespace Studio.MeowToon {
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.jump).Subscribe(_ => {
                 rb.useGravity = true;
-                rb.AddRelativeFor​​ce(Vector3.up * _jumpPower * 40f, ForceMode.Acceleration);
+                rb.AddRelativeFor​​ce(Vector3.up * _jumpPower * POWER * 2, ForceMode.Acceleration);
                 _doFixedUpdate.CancelJump();
             });
 
-            // rotate.
+            /// <summary>
+            /// rotate.
+            /// </summary>
             this.UpdateAsObservable().Subscribe(_ => {
                 var axis = _rightButton.isPressed ? 1 : _leftButton.isPressed ? -1 : 0;
-                transform.Rotate(0, axis * (_rotationalSpeed * Time.deltaTime) * 12.0f, 0);
+                transform.Rotate(0, axis * (_rotationalSpeed * Time.deltaTime) * POWER, 0);
             });
 
-            // when touching grounds or blocks.
-            this.OnCollisionEnterAsObservable().Where(x => x.LikeBlock() || x.LikeGround()).Subscribe(_ => {
+            /// <summary>
+            /// freeze.
+            /// </summary>
+            this.OnCollisionStayAsObservable().Where(x => x.LikeBlock() && (_upButton.isPressed || _downButton.isPressed) && _acceleration.freeze).Subscribe(_ => {
+                var reach = getReach();
+                //Debug.Log("reach: " + Math.Round(transform.position.y, 2) % 1); // FIXME:
+                if (_doUpdate.grounded && (reach < 0.5d || reach >= 0.99d)) {
+                    moveLetfOrRight(getDirection(transform.forward));
+                } else if (reach >= 0.5d && reach < 0.99d) {
+                    rb.useGravity = false;
+                    moveTop();
+                }
+            });
+
+            /// <summary>
+            /// when touching grounds.
+            /// </summary>
+            this.OnCollisionEnterAsObservable().Where(x => x.LikeGround()).Subscribe(x => {
                 _doUpdate.grounded = true;
-                Debug.Log("grounded: " + _doUpdate.grounded); // FIXME:
+                rb.useGravity = true;
+            });
+
+            /// <summary>
+            /// when touching blocks.
+            /// </summary>
+            this.OnCollisionEnterAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
+                if (!isHitSide(x.gameObject)) {
+                    _doUpdate.grounded = true;
+                    rb.useGravity = true;
+                }
+            });
+
+            /// <summary>
+            /// when leaving blocks.
+            /// </summary>
+            this.OnCollisionExitAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
+                rb.useGravity = true;
             });
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        // private Methods [verb]
+
+        /// <summary>
+        /// the value until the top of the block.
+        /// </summary>
+        double getReach() {
+            return Math.Round(transform.position.y, 2) % 1; // FIXME:
+        }
+
+        /// <summary>
+        /// move top when the player hits a block.
+        /// </summary>
+        void moveTop() {
+            const float SPEED = 6.0f;
+            transform.position = new Vector3(
+                transform.position.x,
+                transform.position.y + SPEED * Time.deltaTime,
+                transform.position.z
+            );
+        }
+
+        /// <summary>
+        /// move aside when the player hits a block.
+        /// </summary>
+        /// <param name="direction">the player's direction is provided.</param>
+        void moveLetfOrRight(Direction direction) {
+            const float SPEED = 0.3f;
+            Vector3 movePosition = transform.position;
+            // z-axis positive and negative.
+            if (direction == Direction.PositiveZ || direction == Direction.NegativeZ) {
+                if (transform.forward.x < 0f) {
+                    movePosition = new Vector3(
+                        transform.position.x - SPEED * Time.deltaTime,
+                        transform.position.y,
+                        transform.position.z
+                    );
+                } else if (transform.forward.x >= 0f) {
+                    movePosition = new Vector3(
+                        transform.position.x + SPEED * Time.deltaTime,
+                        transform.position.y,
+                        transform.position.z
+                    );
+                }
+            }
+            // x-axis positive and negative.
+            if (direction == Direction.PositiveX || direction == Direction.NegativeX) {
+                if (transform.forward.z < 0f) {
+                    movePosition = new Vector3(
+                        transform.position.x,
+                        transform.position.y,
+                        transform.position.z - SPEED * Time.deltaTime
+                    );
+                } else if (transform.forward.z >= 0f) {
+                    movePosition = new Vector3(
+                        transform.position.x,
+                        transform.position.y,
+                        transform.position.z + SPEED * Time.deltaTime
+                    );
+                }
+            }
+            // move to a new position.
+            transform.position = movePosition;
+        }
+
+        /// <summary>
+        /// returns an enum of the player's direction.
+        /// </summary>
+        Direction getDirection(Vector3 forwardVector) {
+            var fX = (float) Math.Round(forwardVector.x);
+            var fY = (float) Math.Round(forwardVector.y);
+            var fZ = (float) Math.Round(forwardVector.z);
+            // z-axis positive.
+            if (fX == 0 && fZ == 1) { return Direction.PositiveZ; }
+            // z-axis negative.
+            if (fX == 0 && fZ == -1) { return Direction.NegativeZ; }
+            // x-axis positive.
+            if (fX == 1 && fZ == 0) { return Direction.PositiveX; }
+            // x-axis negative.
+            if (fX == -1 && fZ == 0) { return Direction.NegativeX; }
+            // determine the difference between the two axes.
+            float abX = Math.Abs(forwardVector.x);
+            float abZ = Math.Abs(forwardVector.z);
+            if (abX > abZ) {
+                // x-axis positive.
+                if (fX == 1) { return Direction.PositiveX; }
+                // x-axis negative.
+                if (fX == -1) { return Direction.NegativeX; }
+            } else if (abX < abZ) {
+                // z-axis positive.
+                if (fZ == 1) { return Direction.PositiveZ; }
+                // z-axis negative.
+                if (fZ == -1) { return Direction.NegativeZ; }
+            }
+            return Direction.None; // unknown.
+        }
+
+        /// <summary>
+        /// whether hits the side of the colliding object.
+        /// </summary>
+        bool isHitSide(GameObject target) {
+            const float ADJUST = 0.1f;
+            float targetHeight = target.GetRenderer().bounds.size.y;
+            float targetY = target.transform.position.y;
+            float targetTop = targetHeight + targetY;
+            var y = transform.position.y;
+            if (y < (targetTop - ADJUST)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        // inner Classes
 
         #region DoUpdate
 
@@ -246,5 +409,56 @@ namespace Studio.MeowToon {
 
         #endregion
 
+        #region Acceleration
+
+        class Acceleration {
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Fields
+
+            float _currentSpeed;
+            float _previousSpeed;
+            float _forwardSpeedLimit;
+            float _runSpeedLimit;
+            float _backwardSpeedLimit;
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Properties [noun, adjectives] 
+
+            public float currentSpeed { get => _currentSpeed; set => _currentSpeed = value; }
+            public float previousSpeed { get => _previousSpeed; set => _previousSpeed = value; }
+            public bool walk { get => _currentSpeed < _forwardSpeedLimit; }
+            public bool run { get => _currentSpeed < _runSpeedLimit; }
+            public bool backward { get => _currentSpeed < _backwardSpeedLimit; }
+            public bool freeze { get {
+                if (Math.Round(_previousSpeed, 2) < 0.02 &&
+                    Math.Round(_currentSpeed, 2) < 0.02 &&
+                    Math.Round(_previousSpeed, 2) == Math.Round(_currentSpeed, 2)) {
+                    return true;
+                }
+                return false;
+            }}
+
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Constructor
+
+            /// <summary>
+            /// hide the constructor.
+            /// </summary>
+            Acceleration(float forwardSpeedLimit, float runSpeedLimit, float backwardSpeedLimit) {
+                _forwardSpeedLimit = forwardSpeedLimit;
+                _runSpeedLimit = runSpeedLimit;
+                _backwardSpeedLimit = backwardSpeedLimit;
+            }
+
+            /// <summary>
+            /// returns an initialized instance.
+            /// </summary>
+            public static Acceleration GetInstance(float forwardSpeedLimit, float runSpeedLimit, float backwardSpeedLimit) {
+                return new Acceleration(forwardSpeedLimit, runSpeedLimit, backwardSpeedLimit);
+            }
+        }
+
+        #endregion
     }
 }
