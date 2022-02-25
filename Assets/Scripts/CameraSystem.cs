@@ -13,6 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Linq;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
@@ -23,6 +24,8 @@ namespace Studio.MeowToon {
     /// @author h.adachi
     /// </summary>
     public class CameraSystem : GamepadMaper {
+
+#nullable enable
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
         // Fields
@@ -39,22 +42,18 @@ namespace Studio.MeowToon {
 
             // when touching the back wall.
             this.OnTriggerEnterAsObservable().Where(x => x.LikeWall()).Subscribe(x => {
-                var materialList = x.gameObject.GetMeshRenderer().materials;
-                foreach (var material in materialList) {
-                    var color = material.color;
-                    color.a = 0; // to opaque.
-                    material.color = color;
-                }
+                var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
+                materialList.ForEach(material => {
+                    material.ToOpaque();
+                });
             });
 
             // when leaving the back wall.
             this.OnTriggerExitAsObservable().Where(x => x.LikeWall()).Subscribe(x => {
-                var materialList = x.gameObject.GetMeshRenderer().materials;
-                foreach (var material in materialList) {
-                    var color = material.color;
-                    color.a = 1; // to transparent.
-                    material.color = color;
-                }
+                var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
+                materialList.ForEach(material => {
+                    material.ToTransparent();
+                });
             });
         }
     }

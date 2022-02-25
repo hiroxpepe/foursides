@@ -22,6 +22,8 @@ namespace Studio.MeowToon {
     /// </summary>
     public static class Extensions {
 
+#nullable enable
+
         #region type of object.
 
         /// <summary>
@@ -180,6 +182,30 @@ namespace Studio.MeowToon {
         /// </summary>
         public static CameraSystem GetCameraSystem(this GameObject self) {
             return GameObject.Find("CameraSystem").GetComponent<CameraSystem>();
+        }
+
+        #endregion
+
+        #region for Material.
+
+        /// <summary>
+        /// set Material color to opaque.
+        /// </summary>
+        public static Material ToOpaque(this Material self, int time = 0) {
+            var color = self.color;
+            color.a = 0; // to opaque.
+            self.color = color;
+            return self;
+        }
+
+        /// <summary>
+        /// set Material color to transparent.
+        /// </summary>
+        public static Material ToTransparent(this Material self, int time = 0) {
+            var color = self.color;
+            color.a = 1; // to transparent.
+            self.color = color;
+            return self;
         }
 
         #endregion
