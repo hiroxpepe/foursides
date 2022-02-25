@@ -24,6 +24,8 @@ namespace Studio.MeowToon {
     /// </summary>
     public class PlayerController : GamepadMaper {
 
+#nullable enable
+
         ///////////////////////////////////////////////////////////////////////////////////////////
         // References
 

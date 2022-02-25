@@ -26,6 +26,8 @@ namespace Studio.MeowToon {
     /// </summary>
     public class GamepadMaper : MonoBehaviour {
 
+#nullable enable
+
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
 
