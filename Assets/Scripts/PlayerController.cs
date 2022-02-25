@@ -85,7 +85,7 @@ namespace Studio.MeowToon {
             });
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.walk && _acceleration.walk).Subscribe(_ => {
-                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration); // FIXME: 12.0f => FORCE
+                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration);
                 _doFixedUpdate.CancelWalk();
             });
 
