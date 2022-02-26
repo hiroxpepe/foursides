@@ -55,6 +55,22 @@ namespace Studio.MeowToon {
                     material.ToTransparent();
                 });
             });
+
+            // when touching the block.
+            this.OnTriggerEnterAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
+                var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
+                materialList.ForEach(material => {
+                    material.ToOpaque();
+                });
+            });
+
+            // when leaving the block.
+            this.OnTriggerExitAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
+                var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
+                materialList.ForEach(material => {
+                    material.ToTransparent();
+                });
+            });
         }
     }
 }
