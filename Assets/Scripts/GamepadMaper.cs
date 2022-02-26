@@ -47,6 +47,16 @@ namespace Studio.MeowToon {
 
         protected ButtonControl _rightButton;
 
+        protected ButtonControl _rightStickUpButton;
+
+        protected ButtonControl _rightStickDownButton;
+
+        protected ButtonControl _rightStickLeftButton;
+
+        protected ButtonControl _rightStickRightButton;
+
+        protected ButtonControl _rightStickButton;
+
         ///////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
 
@@ -85,6 +95,11 @@ namespace Studio.MeowToon {
                 _xButton = Gamepad.current.yButton;
                 _yButton = Gamepad.current.xButton;
             }
+            _rightStickUpButton = Gamepad.current.rightStick.up;
+            _rightStickDownButton = Gamepad.current.rightStick.down;
+            _rightStickLeftButton = Gamepad.current.rightStick.left;
+            _rightStickRightButton = Gamepad.current.rightStick.right;
+            _rightStickButton = Gamepad.current.rightStickButton;
         }
     }
 }
