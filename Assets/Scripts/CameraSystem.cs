@@ -28,10 +28,26 @@ namespace Studio.MeowToon {
 #nullable enable
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
-        // Fields
+        // References
+
+        [SerializeField]
+        GameObject _horizontalAxis;
+
+        [SerializeField]
+        GameObject _verticalAxis;
 
         [SerializeField]
         GameObject _mainCamera;
+
+        [SerializeField]
+        GameObject _lookTarget;
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        // Fields
+
+        Vector3 _defaultLocalPosition;
+
+        Quaternion _defaultLocalRotation;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
         // update Methods
@@ -40,7 +56,29 @@ namespace Studio.MeowToon {
         new void Start() {
             base.Start();
 
-            // when touching the back wall.
+            /// <summary>
+            /// hold the default position and rotation of the camera.
+            /// </summary>
+            _defaultLocalPosition = transform.localPosition;
+            _defaultLocalRotation = transform.localRotation;
+
+            /// <summary>
+            /// rotate the camera view.
+            /// </summary>
+            this.UpdateAsObservable().Subscribe(_ => {
+                rotateView();
+            });
+
+            /// <summary>
+            /// reset the camera view.
+            /// </summary>
+            this.UpdateAsObservable().Where(_ => _rightStickButton.wasPressedThisFrame).Subscribe(_ => {
+                resetRotateView();
+            });
+
+            /// <summary>
+            /// when touching the back wall.
+            /// </summary>
             this.OnTriggerEnterAsObservable().Where(x => x.LikeWall()).Subscribe(x => {
                 var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
                 materialList.ForEach(material => {
@@ -48,7 +86,9 @@ namespace Studio.MeowToon {
                 });
             });
 
-            // when leaving the back wall.
+            /// <summary>
+            /// when leaving the back wall.
+            /// </summary>
             this.OnTriggerExitAsObservable().Where(x => x.LikeWall()).Subscribe(x => {
                 var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
                 materialList.ForEach(material => {
@@ -56,7 +96,9 @@ namespace Studio.MeowToon {
                 });
             });
 
-            // when touching the block.
+            /// <summary>
+            /// when touching the block.
+            /// </summary>
             this.OnTriggerEnterAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
                 var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
                 materialList.ForEach(material => {
@@ -64,13 +106,52 @@ namespace Studio.MeowToon {
                 });
             });
 
-            // when leaving the block.
+            /// <summary>
+            /// when leaving the block.
+            /// </summary>
             this.OnTriggerExitAsObservable().Where(x => x.LikeBlock()).Subscribe(x => {
                 var materialList = x.gameObject.GetMeshRenderer().materials.ToList();
                 materialList.ForEach(material => {
                     material.ToTransparent();
                 });
             });
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        // private Methods [verb]
+
+        /// <summary>
+        /// rotate the camera view.
+        /// </summary>
+        void rotateView() {
+            const float ADJUST = 120.0f;
+            var playerPosition = transform.parent.gameObject.transform.position;
+            // up.
+            if (_rightStickUpButton.isPressed) {
+                transform.RotateAround(playerPosition, Vector3.right, 1.0f * ADJUST * Time.deltaTime);
+                transform.LookAt(_lookTarget.transform);
+            }
+            // down.
+            else if (_rightStickDownButton.isPressed) {
+                transform.RotateAround(playerPosition, Vector3.right, -1.0f * ADJUST * Time.deltaTime);
+                transform.LookAt(_lookTarget.transform);
+            }
+            // left.
+            else if (_rightStickLeftButton.isPressed) {
+                transform.RotateAround(playerPosition, Vector3.up, 1.0f * ADJUST * Time.deltaTime);
+            }
+            // right
+            else if (_rightStickRightButton.isPressed) {
+                transform.RotateAround(playerPosition, Vector3.up, -1.0f * ADJUST * Time.deltaTime);
+            }
+        }
+
+        /// <summary>
+        /// reset the camera view.
+        /// </summary>
+        void resetRotateView() {
+            transform.localPosition = _defaultLocalPosition;
+            transform.localRotation = _defaultLocalRotation; 
         }
     }
 }
