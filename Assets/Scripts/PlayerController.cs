@@ -85,7 +85,7 @@ namespace Studio.MeowToon {
             });
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.walk && _acceleration.walk).Subscribe(_ => {
-                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration);
+                rb.AddFor​​ce(transform.forward * POWER * 7.5f, ForceMode.Acceleration);
                 _doFixedUpdate.CancelWalk();
             });
 
@@ -97,7 +97,7 @@ namespace Studio.MeowToon {
             });
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.run && _acceleration.run).Subscribe(_ => {
-                rb.AddFor​​ce(transform.forward * POWER, ForceMode.Acceleration);
+                rb.AddFor​​ce(transform.forward * POWER * 7.5f, ForceMode.Acceleration);
                 _doFixedUpdate.CancelRun();
             });
 
@@ -109,7 +109,7 @@ namespace Studio.MeowToon {
             });
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.backward && _acceleration.backward).Subscribe(_ => {
-                rb.AddFor​​ce(-transform.forward * POWER, ForceMode.Acceleration);
+                rb.AddFor​​ce(-transform.forward * POWER * 7.5f, ForceMode.Acceleration);
                 _doFixedUpdate.CancelBackward();
             });
 
