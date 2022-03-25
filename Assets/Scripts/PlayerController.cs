@@ -15,6 +15,7 @@
 
 using System;
 using UnityEngine;
+using static UnityEngine.Vector3;
 using UniRx;
 using UniRx.Triggers;
 
@@ -143,7 +144,7 @@ namespace Studio.MeowToon {
 
             this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.jump).Subscribe(_ => {
                 rb.useGravity = true;
-                rb.AddRelativeFor​​ce(Vector3.up * _jumpPower * POWER * 2, ForceMode.Acceleration);
+                rb.AddRelativeFor​​ce(up * _jumpPower * POWER * 2, ForceMode.Acceleration);
                 _doFixedUpdate.CancelJump();
             });
 
@@ -210,7 +211,7 @@ namespace Studio.MeowToon {
         /// </summary>
         void moveTop() {
             const float SPEED = 6.0f;
-            transform.position = new Vector3(
+            transform.position = new(
                 transform.position.x,
                 transform.position.y + SPEED * Time.deltaTime,
                 transform.position.z
@@ -227,13 +228,13 @@ namespace Studio.MeowToon {
             // z-axis positive and negative.
             if (direction == Direction.PositiveZ || direction == Direction.NegativeZ) {
                 if (transform.forward.x < 0f) {
-                    movePosition = new Vector3(
+                    movePosition = new(
                         transform.position.x - SPEED * Time.deltaTime,
                         transform.position.y,
                         transform.position.z
                     );
                 } else if (transform.forward.x >= 0f) {
-                    movePosition = new Vector3(
+                    movePosition = new(
                         transform.position.x + SPEED * Time.deltaTime,
                         transform.position.y,
                         transform.position.z
@@ -243,13 +244,13 @@ namespace Studio.MeowToon {
             // x-axis positive and negative.
             if (direction == Direction.PositiveX || direction == Direction.NegativeX) {
                 if (transform.forward.z < 0f) {
-                    movePosition = new Vector3(
+                    movePosition = new(
                         transform.position.x,
                         transform.position.y,
                         transform.position.z - SPEED * Time.deltaTime
                     );
                 } else if (transform.forward.z >= 0f) {
-                    movePosition = new Vector3(
+                    movePosition = new(
                         transform.position.x,
                         transform.position.y,
                         transform.position.z + SPEED * Time.deltaTime
