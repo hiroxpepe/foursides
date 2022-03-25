@@ -25,7 +25,6 @@ namespace Studio.MeowToon {
     /// @author h.adachi
     /// </summary>
     public class GamepadMaper : MonoBehaviour {
-
 #nullable enable
 
         ///////////////////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@
 
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Vector3;
 using UniRx;
 using UniRx.Triggers;
 
@@ -24,7 +25,6 @@ namespace Studio.MeowToon {
     /// @author h.adachi
     /// </summary>
     public class CameraSystem : GamepadMaper {
-
 #nullable enable
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,21 +128,21 @@ namespace Studio.MeowToon {
             var playerPosition = transform.parent.gameObject.transform.position;
             // up.
             if (_rightStickUpButton.isPressed) {
-                transform.RotateAround(playerPosition, Vector3.right, 1.0f * ADJUST * Time.deltaTime);
+                transform.RotateAround(playerPosition, right, 1.0f * ADJUST * Time.deltaTime);
                 transform.LookAt(_lookTarget.transform);
             }
             // down.
             else if (_rightStickDownButton.isPressed) {
-                transform.RotateAround(playerPosition, Vector3.right, -1.0f * ADJUST * Time.deltaTime);
+                transform.RotateAround(playerPosition, right, -1.0f * ADJUST * Time.deltaTime);
                 transform.LookAt(_lookTarget.transform);
             }
             // left.
             else if (_rightStickLeftButton.isPressed) {
-                transform.RotateAround(playerPosition, Vector3.up, 1.0f * ADJUST * Time.deltaTime);
+                transform.RotateAround(playerPosition, up, 1.0f * ADJUST * Time.deltaTime);
             }
             // right
             else if (_rightStickRightButton.isPressed) {
-                transform.RotateAround(playerPosition, Vector3.up, -1.0f * ADJUST * Time.deltaTime);
+                transform.RotateAround(playerPosition, up, -1.0f * ADJUST * Time.deltaTime);
             }
         }
 
