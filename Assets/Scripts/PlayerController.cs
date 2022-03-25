@@ -24,7 +24,6 @@ namespace Studio.MeowToon {
     /// @author h.adachi
     /// </summary>
     public class PlayerController : GamepadMaper {
-
 #nullable enable
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +43,9 @@ namespace Studio.MeowToon {
 
         [SerializeField]
         float _backwardSpeedLimit = 0.75f;
+
+        [SerializeField]
+        SimpleAnimation _simpleAnime;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Fields
@@ -78,9 +80,24 @@ namespace Studio.MeowToon {
             });
 
             /// <summary>
+            /// idol.
+            /// </summary>
+            this.UpdateAsObservable().Where(_ => _doUpdate.grounded && !_upButton.isPressed && !_downButton.isPressed)
+                .Subscribe(_ => {
+                    _simpleAnime.Play("Default");
+                    _doFixedUpdate.ApplyIdol();
+                });
+
+            this.FixedUpdateAsObservable().Where(_ => _doFixedUpdate.idol)
+                .Subscribe(_ => {
+                    rb.useGravity = true;
+                });
+
+            /// <summary>
             /// walk.
             /// </summary>
-            this.UpdateAsObservable().Where(_ => _upButton.isPressed).Subscribe(_ => {
+            this.UpdateAsObservable().Where(_ => _upButton.isPressed && !_yButton.isPressed).Subscribe(_ => {
+                if (_doUpdate.grounded) { _simpleAnime.Play("Walk"); }
                 _doFixedUpdate.ApplyWalk();
             });
 
@@ -93,6 +110,7 @@ namespace Studio.MeowToon {
             /// run.
             /// </summary>
             this.UpdateAsObservable().Where(_ => _upButton.isPressed && _yButton.isPressed).Subscribe(_ => {
+                if (_doUpdate.grounded) { _simpleAnime.Play("Run"); }
                 _doFixedUpdate.ApplyRun();
             });
 
@@ -105,6 +123,7 @@ namespace Studio.MeowToon {
             /// backward.
             /// </summary>
             this.UpdateAsObservable().Where(_ => _downButton.isPressed).Subscribe(_ => {
+                if (_doUpdate.grounded) { _simpleAnime.Play("Walk"); }
                 _doFixedUpdate.ApplyBackward();
             });
 
@@ -118,6 +137,7 @@ namespace Studio.MeowToon {
             /// </summary>
             this.UpdateAsObservable().Where(_ => _bButton.wasPressedThisFrame && _doUpdate.grounded).Subscribe(_ => {
                 _doUpdate.grounded = false;
+                _simpleAnime.Play("Jump");
                 _doFixedUpdate.ApplyJump();
             });
 
@@ -371,9 +391,15 @@ namespace Studio.MeowToon {
             ///////////////////////////////////////////////////////////////////////////////////////////
             // public Methods
 
+            public void ApplyIdol() {
+                _idol = true;
+                _run = _walk = _backward = _jump = false;
+            }
+
             public void ApplyRun() {
                 _idol = _walk = _backward = false;
                 _run = true;
+
             }
 
             public void CancelRun() {
