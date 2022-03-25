@@ -889,6 +889,7 @@ MonoBehaviour:
   _forwardSpeedLimit: 1.5
   _runSpeedLimit: 3.25
   _backwardSpeedLimit: 1
+  _simpleAnime: {fileID: 476587349}
 --- !u!4 &476587347 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1975155639418616730, guid: 600261f4496eccb4fa8ff4918f49ffed,
@@ -916,6 +917,15 @@ MonoBehaviour:
   - clip: {fileID: 4786141143831917231, guid: 9cfafb13430fe4e4a909a443db7f3db2, type: 3}
     name: Default
     defaultState: 1
+  - clip: {fileID: 7628061664348967235, guid: 2985f0f61f42d354a98423624f69bcff, type: 3}
+    name: Walk
+    defaultState: 0
+  - clip: {fileID: 5059279059355288639, guid: c56dcb4c9c76f924784dd4438d23f148, type: 3}
+    name: Run
+    defaultState: 0
+  - clip: {fileID: -3425954409781038263, guid: 5ea93f197ace8284ca3b7b0b9d1b0b49, type: 3}
+    name: Jump
+    defaultState: 0
 --- !u!1001 &487967389
 PrefabInstance:
   m_ObjectHideFlags: 0
